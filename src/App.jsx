@@ -2,7 +2,6 @@ import { useState } from 'react';
 import axios from 'axios';
 
 const URL = import.meta.env.VITE_API_URL;
-const KUNCI = import.meta.env.VITE_API_KEY;
 
 function App() {
   const [text, setText] = useState('');
@@ -23,65 +22,44 @@ function App() {
     try {
       const response = await axios({
         method: 'POST',
-        url: URL,
-        data: {
-          inputs: text,
-        },
-        headers: {
-          'Authorization': `Bearer ${KUNCI}`,
-          'Content-Type': 'application/json',
-        },
+        url: `${URL}/api/analyze-sentiment`,
+        data: { text },
+        headers: { 'Content-Type': 'application/json' },
         timeout: 30000,
       });
 
-      // Handle the nested array response structure
-      if (Array.isArray(response.data) &&
-        Array.isArray(response.data[0]) &&
-        response.data[0].length > 0) {
-        // Sort by score to get the highest probability
-        const predictions = response.data[0].sort((a, b) => b.score - a.score);
-        setResult(predictions[0]);
+      // Handle nested array structure from the API response
+      if (response.data?.sentiment?.[0]?.[0]) {
+        setResult(response.data.sentiment[0][0]);
       } else {
         throw new Error('Unexpected API response format');
       }
     } catch (err) {
       console.error('Error details:', err);
 
-      if (err.response?.status === 401) {
-        setError('Authentication failed. Please check API key.');
-      } else if (err.response?.status === 429) {
-        setError('Too many requests. Please wait a moment and try again.');
-      } else if (err.code === 'ECONNABORTED') {
-        setError('Request timed out. Please try again.');
-      } else if (err.response?.data?.error) {
-        setError(err.response.data.error);
-      } else if (err.message) {
-        setError(err.message);
-      } else {
-        setError('Failed to analyze sentiment. Please try again.');
-      }
+      const errorMessage = {
+        401: 'Authentication failed. Please check API key.',
+        429: 'Too many requests. Please wait a moment and try again.',
+        ECONNABORTED: 'Request timed out. Please try again.',
+      }[err.response?.status || err.code] || err.response?.data?.error || err.message || 'Failed to analyze sentiment. Please try again.';
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  const getSentimentColor = (label) => {
-    const colors = {
-      'LABEL_0': 'text-red-600',    // Negative
-      'LABEL_1': 'text-yellow-600', // Neutral
-      'LABEL_2': 'text-green-600'   // Positive
-    };
-    return colors[label] || 'text-gray-600';
-  };
+  const getSentimentColor = (label) => ({
+    'LABEL_0': 'text-red-500',    // Negative
+    'LABEL_1': 'text-yellow-500', // Neutral
+    'LABEL_2': 'text-green-500'   // Positive
+  }[label] || 'text-gray-500');
 
-  const getReadableLabel = (label) => {
-    const labels = {
-      'LABEL_0': 'Negative',
-      'LABEL_1': 'Neutral',
-      'LABEL_2': 'Positive'
-    };
-    return labels[label] || label;
-  };
+  const getReadableLabel = (label) => ({
+    'LABEL_0': 'Negatif',
+    'LABEL_1': 'Netral',
+    'LABEL_2': 'Positif'
+  }[label] || label);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-6 flex flex-col justify-center sm:py-12">
@@ -112,18 +90,18 @@ function App() {
                 <button
                   onClick={analyzeSentiment}
                   disabled={loading || !text.trim()}
-                  className="w-full px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center"
+                  className="w-full px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <>
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
                       Analyzing...
                     </>
                   ) : (
-                    'Analyze Sentiment'
+                    'Analisis Sentimen'
                   )}
                 </button>
 
