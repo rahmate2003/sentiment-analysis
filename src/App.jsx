@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import axios from 'axios';
 
-const API_KEY = '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';
-const API_URL = 'https://api-inference.huggingface.co/models/delvinnr/sentiment-analysis-indobert';
+const URL = import.meta.env.VITE_API_URL;
+const KUNCI = import.meta.env.VITE_API_KEY;
 
 function App() {
   const [text, setText] = useState('');
@@ -23,12 +23,12 @@ function App() {
     try {
       const response = await axios({
         method: 'POST',
-        url: API_URL,
+        url: URL,
         data: {
           inputs: text,
         },
         headers: {
-          'Authorization': `Bearer ${API_KEY}`,
+          'Authorization': `Bearer ${KUNCI}`,
           'Content-Type': 'application/json',
         },
         timeout: 30000,
