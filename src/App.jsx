@@ -36,11 +36,15 @@ function App() {
     } catch (err) {
       console.error('Error details:', err);
 
-      const errorMessage = {
-        401: 'Authentication failed. Please check API key.',
-        429: 'Too many requests. Please wait a moment and try again.',
-        ECONNABORTED: 'Request timed out. Please try again.',
-      }[err.response?.status || err.code] || err.response?.data?.error || err.message || 'Failed to analyze sentiment. Please try again.';
+      const errorMessage =
+        {
+          401: 'Authentication failed. Please check API key.',
+          429: 'Too many requests. Please wait a moment and try again.',
+          ECONNABORTED: 'Request timed out. Please try again.',
+        }[err.response?.status || err.code] ||
+        err.response?.data?.error ||
+        err.message ||
+        'Failed to analyze sentiment. Please try again.';
 
       setError(errorMessage);
     } finally {
@@ -48,16 +52,18 @@ function App() {
     }
   };
 
-  const getSentimentColor = (label) => ({
-    'LABEL_0': 'text-red-500',    // Negative
-    'LABEL_1': 'text-yellow-500', // Neutral
-    'LABEL_2': 'text-green-500'   // Positive
+  const getSentimentColor = (label) =>
+  ({
+    LABEL_0: 'text-red-500', // Negative
+    LABEL_1: 'text-yellow-500', // Neutral
+    LABEL_2: 'text-green-500', // Positive
   }[label] || 'text-gray-500');
 
-  const getReadableLabel = (label) => ({
-    'LABEL_0': 'Negatif',
-    'LABEL_1': 'Netral',
-    'LABEL_2': 'Positif'
+  const getReadableLabel = (label) =>
+  ({
+    LABEL_0: 'Negatif',
+    LABEL_1: 'Netral',
+    LABEL_2: 'Positif',
   }[label] || label);
 
   return (
@@ -68,7 +74,10 @@ function App() {
         </h1>
 
         <div className="mb-6">
-          <label htmlFor="text-input" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="text-input"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Enter your text in Indonesian
           </label>
           <textarea
@@ -89,9 +98,25 @@ function App() {
         >
           {loading ? (
             <>
-              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <svg
+                className="animate-spin h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
               </svg>
               Analisis...
             </>
@@ -99,6 +124,12 @@ function App() {
             'Analisis Sentimen'
           )}
         </button>
+
+        {loading && (
+          <div className="mt-4">
+            <p className="text-gray-500">Sedang menganalisis, mohon tunggu...</p>
+          </div>
+        )}
 
         {error && (
           <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
