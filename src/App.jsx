@@ -8,7 +8,6 @@ function App() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
   const analyzeSentiment = async () => {
     if (!text.trim()) {
       setError('Please enter some text to analyze.');
@@ -28,9 +27,21 @@ function App() {
         timeout: 30000,
       });
 
-      if (response.data?.sentiment?.[0]?.[0]) {
+      // Periksa apakah respons sesuai dengan format yang diharapkan
+      if (
+        response.data &&
+        response.data.sentiment &&
+        Array.isArray(response.data.sentiment) &&
+        response.data.sentiment[0] &&
+        Array.isArray(response.data.sentiment[0]) &&
+        response.data.sentiment[0][0]
+      ) {
         setResult(response.data.sentiment[0][0]);
+      } else if (response.data && response.data.error) {
+        // Jika ada pesan error yang dikembalikan API
+        throw new Error(response.data.error);
       } else {
+        // Tangani format respons yang tidak sesuai
         throw new Error('Unexpected API response format');
       }
     } catch (err) {
@@ -51,6 +62,7 @@ function App() {
       setLoading(false);
     }
   };
+
 
   const getSentimentColor = (label) =>
   ({
