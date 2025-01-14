@@ -37,11 +37,9 @@ function App() {
         response.data.sentiment[0][0]
       ) {
         setResult(response.data.sentiment[0][0]);
-      } else if (response.data && response.data.error) {
-        // Jika ada pesan error yang dikembalikan API
-        throw new Error(response.data.error);
       } else {
-        // Tangani format respons yang tidak sesuai
+        // Tampilkan respons JSON jika formatnya tidak sesuai
+        setResult({ unexpectedResponse: response.data });
         throw new Error('Unexpected API response format');
       }
     } catch (err) {
@@ -62,7 +60,6 @@ function App() {
       setLoading(false);
     }
   };
-
 
   const getSentimentColor = (label) =>
   ({
@@ -152,22 +149,34 @@ function App() {
         {result && (
           <div className="mt-6 p-6 bg-gray-50 rounded-lg border border-gray-200">
             <h2 className="text-2xl font-semibold mb-4">Hasil Analisis</h2>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Sentiment:</span>
-                <span className={`font-medium ${getSentimentColor(result.label)}`}>
-                  {getReadableLabel(result.label)}
-                </span>
+            {result.label ? (
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Sentiment:</span>
+                  <span className={`font-medium ${getSentimentColor(result.label)}`}>
+                    {getReadableLabel(result.label)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Confidence:</span>
+                  <span className="font-medium">
+                    {(result.score * 100).toFixed(1)}%
+                  </span>
+                </div>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Confidence:</span>
-                <span className="font-medium">
-                  {(result.score * 100).toFixed(1)}%
-                </span>
+            ) : (
+              <div>
+                <h3 className="text-lg font-semibold text-red-600">
+                  Unexpected Response
+                </h3>
+                <pre className="text-sm bg-gray-100 p-3 rounded-lg overflow-x-auto">
+                  {JSON.stringify(result.unexpectedResponse, null, 2)}
+                </pre>
               </div>
-            </div>
+            )}
           </div>
         )}
+
       </div>
     </div>
   );
