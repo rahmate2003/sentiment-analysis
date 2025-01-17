@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import axios from 'axios';
 
-const URL = import.meta.env.VITE_API_URL;
 
 function App() {
   const [text, setText] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
   const analyzeSentiment = async () => {
     if (!text.trim()) {
       setError('Please enter some text to analyze.');
@@ -19,13 +19,8 @@ function App() {
     setResult(null);
 
     try {
-      const response = await axios({
-        method: 'POST',
-        url: `${URL}/api/analyze-sentiment`,
-        data: { text },
-        headers: { 'Content-Type': 'application/json' },
-        timeout: 30000,
-      });
+
+      const response = await axios.post('/api/analyze-sentiment', { text });
 
       // Periksa apakah respons sesuai dengan format yang diharapkan
       if (
@@ -38,13 +33,11 @@ function App() {
       ) {
         setResult(response.data.sentiment[0][0]);
       } else {
-        // Tampilkan respons JSON jika formatnya tidak sesuai
         setResult({ unexpectedResponse: response.data });
         throw new Error('Unexpected API response format');
       }
     } catch (err) {
       console.error('Error details:', err);
-
       const errorMessage =
         {
           401: 'Authentication failed. Please check API key.',
@@ -54,12 +47,12 @@ function App() {
         err.response?.data?.error ||
         err.message ||
         'Failed to analyze sentiment. Please try again.';
-
       setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
+
 
   const getSentimentColor = (label) =>
   ({
